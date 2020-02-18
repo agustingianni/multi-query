@@ -1,12 +1,10 @@
 import os
-import sys
 import time
 import shutil
 import signal
 import psutil
 import logging
 import argparse
-import tempfile
 import functools
 import subprocess
 import collections
