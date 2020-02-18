@@ -4,12 +4,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="multi-query",
+    name="multiquery",
     packages=setuptools.find_packages(),
     install_requires=["psutil", "coloredlogs"],
     entry_points={
         "console_scripts": [
             "multiquery = multiquery.multiquery:main",
+            "multiupdate = multiquery.multiupdate:main",
         ],
     },
     version="0.0.1",
