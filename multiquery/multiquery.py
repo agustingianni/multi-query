@@ -67,6 +67,7 @@ def RunQuery(query_path, output_dir, database_path, output_format="csv", force=F
         "analyze",
         database_path,
         query_path,
+        "--no-metadata-verification",
         "--format=%s" % output_format,
         "--output=%s" % output_file,
         "--threads=%u" % threads,
