@@ -212,7 +212,7 @@ def main():
         help="Output directory."
     )
 
-    # Output directory for results.
+    # CodeQL repository path.
     parser.add_argument(
         "-s",
         type=is_dir,
