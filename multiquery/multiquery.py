@@ -52,7 +52,7 @@ def is_dir(dirname):
     return os.path.abspath(os.path.realpath(os.path.expanduser(dirname)))
 
 
-def RunQuery(query_path, output_dir, database_path, output_format="csv", force=False, threads=None, ram=None):
+def RunQuery(query_path, output_dir, database_path, output_format="csv", force=False, threads=None, ram=None, search_path=None):
     database_name = os.path.basename(database_path)
     logging.info("Running query on {}".format(database_name))
 
@@ -73,6 +73,10 @@ def RunQuery(query_path, output_dir, database_path, output_format="csv", force=F
         "--threads=%u" % threads,
         "--ram=%u" % ram
     ]
+
+    # Set the path to the CodeQL repository.
+    if search_path:
+        command.append("--search-path=%s" % search_path)
 
     # Force a run even if the results are in the cache.
     if force:
@@ -210,6 +214,14 @@ def main():
         help="Output directory."
     )
 
+    # Output directory for results.
+    parser.add_argument(
+        "-s",
+        type=is_dir,
+        dest="search_path",
+        help="CodeQL repository path."
+    )
+
     # Parse arguments.
     arguments = parser.parse_args()
 
@@ -268,7 +280,8 @@ def main():
             output_dir,
             threads=arguments.threads,
             ram=arguments.available_ram,
-            force=arguments.force
+            force=arguments.force,
+            search_path=arguments.search_path
         )
 
         try:
