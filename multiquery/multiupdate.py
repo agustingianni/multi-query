@@ -5,6 +5,7 @@ import signal
 import psutil
 import logging
 import argparse
+import functools
 import subprocess
 import collections
 import coloredlogs
@@ -48,7 +49,7 @@ def is_dir(dirname):
     return os.path.abspath(os.path.realpath(os.path.expanduser(dirname)))
 
 
-def UpdateDatabase(database_path):
+def UpdateDatabase(database_path, search_path=None):
     database_name = os.path.basename(database_path)
     logging.info("Updating database {}".format(database_name))
 
@@ -59,6 +60,10 @@ def UpdateDatabase(database_path):
         "upgrade",
         database_path
     ]
+
+    # Set the path to the CodeQL repository.
+    if search_path:
+        command.append("--search-path=%s" % search_path)
 
     # Run it and capture stdout/stderr.
     ret = subprocess.run(
@@ -141,6 +146,14 @@ def main():
         help="Set the number of CPUs to use."
     )
 
+    # CodeQL repository path.
+    parser.add_argument(
+        "-s",
+        type=is_dir,
+        dest="search_path",
+        help="CodeQL repository path."
+    )
+
     # Parse arguments.
     arguments = parser.parse_args()
 
@@ -163,10 +176,16 @@ def main():
 
     # Create a pool of workers.
     with Pool(arguments.cpu_count, initializer=init_worker) as pool:
+        # Partially apply the target function.
+        partially_applied = functools.partial(
+            UpdateDatabase,
+            search_path=arguments.search_path
+        )
+
         try:
             # Execute and wait for results.
             results = pool.map(
-                UpdateDatabase,
+                partially_applied,
                 projects
             )
 
