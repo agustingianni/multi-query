@@ -1,6 +1,6 @@
-# multi-query
+# multiquery
 
-Run a single query on multiple CodeQL databases in paralel.
+`multiquery` is a python 3 tool Run a single query on multiple CodeQL databases in paralel.
 
 ## Installation
 
@@ -12,7 +12,7 @@ pip install --user multiquery
 
 ## Usage
 
-If you do not plan on installing `multi-query` via pip, you can go to the source directory and run it directly as follows:
+If you do not plan on installing `multiquery` via pip, you can go to the source directory and run it directly as follows:
 
 ```sh
 export PATH="$PATH:$HOME/semmle/codeql"
