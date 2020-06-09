@@ -6,7 +6,10 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="multiquery",
     packages=setuptools.find_packages(),
-    install_requires=["psutil", "coloredlogs"],
+    install_requires=[
+        "psutil",
+        "coloredlogs"
+    ],
     entry_points={
         "console_scripts": [
             "multiquery = multiquery.multiquery:main",

@@ -50,7 +50,7 @@ def is_dir(dirname):
     return os.path.abspath(os.path.realpath(os.path.expanduser(dirname)))
 
 
-def RunQuery(query_path, output_dir, database_path, output_format="csv", force=False, threads=None, ram=None, search_path=None):
+def RunQuery(query_path, output_dir, database_path, threads=None, ram=None, search_path=None):
     database_name = os.path.basename(database_path)
     logging.info("Running query on {}".format(database_name))
 
@@ -59,32 +59,32 @@ def RunQuery(query_path, output_dir, database_path, output_format="csv", force=F
     logging.debug("Saving query results to {}".format(output_file))
 
     # CLI command to run the query.
+    # codeql bqrs decode
     command = [
         "codeql",
-        "database",
-        "analyze",
-        database_path,
+        "query",
+        "run",
         query_path,
-        "--no-metadata-verification",
-        "--format=%s" % output_format,
-        "--output=%s" % output_file,
+        "--database=%s" % database_path,
         "--threads=%u" % threads,
-        "--ram=%u" % ram
+        "--ram=%u" % ram,
+        "--warnings=hide",
+        "--no-metadata-verification",
     ]
 
     # Set the path to the CodeQL repository.
     if search_path:
         command.append("--search-path=%s" % search_path)
 
-    # Force a run even if the results are in the cache.
-    if force:
-        command.append("--rerun")
-
     # Run it and capture stdout/stderr.
     ret = subprocess.run(
         command,
         capture_output=True
     )
+
+    # Save stdout as a result file.
+    with open(output_file, "wb") as output:
+        output.write(ret.stdout)
 
     # Return the result.
     result = QueryResult(
@@ -167,14 +167,6 @@ def main():
         action="store_true",
         dest="debug",
         help="Set output level to DEBUG."
-    )
-
-    # Force query. Used when there are cached results in the database and we want to skip them.
-    parser.add_argument(
-        "-f",
-        action="store_true",
-        dest="force",
-        help="Run query even if the results are cached."
     )
 
     # Set the number of CPUs to use.
@@ -260,9 +252,6 @@ def main():
     logging.info("Using {} MB of RAM per process.".format(
         arguments.available_ram))
 
-    if arguments.force:
-        logging.info("Forcing query execution.")
-
     # Collect findings.
     results = []
 
@@ -278,7 +267,6 @@ def main():
             output_dir,
             threads=arguments.threads,
             ram=arguments.available_ram,
-            force=arguments.force,
             search_path=arguments.search_path
         )
 
